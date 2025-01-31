@@ -355,14 +355,7 @@
           "disabledStateType": "literal",
           "states": "",
           "localStyles": {
-            "objID": "8eb86917-c831-b762-5685-8d01972e8a22",
-            "definition": {
-              "MAIN": {
-                "DEFAULT": {
-                  "opa": 125
-                }
-              }
-            }
+            "objID": "8eb86917-c831-b762-5685-8d01972e8a22"
           },
           "groupIndex": 0
         }
