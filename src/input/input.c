@@ -39,7 +39,7 @@ void handle_keyboard_input(void) {
         switch(c) {
             case 'w':
             case 'W':
-                next_key = LV_KEY_UP;
+                next_key = LV_KEY_NEXT;
                 next_key_pressed = true;
                 printf("Up\n");
                 break;
