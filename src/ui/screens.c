@@ -26,6 +26,7 @@ static void event_handler_cb_main_main(lv_event_t *e) {
         lv_group_add_obj(groups.mainGroup, objects.obj2);
         lv_group_add_obj(groups.mainGroup, objects.obj3);
         lv_group_add_obj(groups.mainGroup, objects.obj4);
+        lv_group_add_obj(groups.mainGroup, objects.my_textarea);
         lv_group_add_obj(groups.mainGroup, objects.obj5);
         lv_group_add_obj(groups.mainGroup, objects.obj6);
         lv_group_add_obj(groups.mainGroup, objects.obj7);
@@ -57,18 +58,19 @@ void create_screen_main() {
                     {
                         lv_obj_t *parent_obj = obj;
                         {
+                            // myTextarea
                             lv_obj_t *obj = lv_textarea_create(parent_obj);
-                            objects.obj5 = obj;
-                            lv_obj_set_pos(obj, 182, 240);
-                            lv_obj_set_size(obj, 232, 52);
+                            objects.my_textarea = obj;
+                            lv_obj_set_pos(obj, 182, 183);
+                            lv_obj_set_size(obj, 232, 42);
                             lv_textarea_set_max_length(obj, 128);
                             lv_textarea_set_one_line(obj, true);
                             lv_textarea_set_password_mode(obj, false);
                         }
                         {
                             lv_obj_t *obj = lv_btn_create(parent_obj);
-                            objects.obj6 = obj;
-                            lv_obj_set_pos(obj, 182, 172);
+                            objects.obj5 = obj;
+                            lv_obj_set_pos(obj, 182, 98);
                             lv_obj_set_size(obj, 100, 50);
                             lv_obj_add_event_cb(obj, action_button1_pressed, LV_EVENT_PRESSED, (void *)0);
                             {
@@ -84,8 +86,8 @@ void create_screen_main() {
                         }
                         {
                             lv_obj_t *obj = lv_btn_create(parent_obj);
-                            objects.obj7 = obj;
-                            lv_obj_set_pos(obj, 182, 98);
+                            objects.obj6 = obj;
+                            lv_obj_set_pos(obj, 182, 15);
                             lv_obj_set_size(obj, 100, 50);
                             {
                                 lv_obj_t *parent_obj = obj;
@@ -114,7 +116,15 @@ void create_screen_main() {
                 }
             }
         }
+        {
+            lv_obj_t *obj = lv_keyboard_create(parent_obj);
+            objects.obj7 = obj;
+            lv_obj_set_pos(obj, 114, 325);
+            lv_obj_set_size(obj, 660, 120);
+            lv_obj_set_style_align(obj, LV_ALIGN_DEFAULT, LV_PART_MAIN | LV_STATE_DEFAULT);
+        }
     }
+    lv_keyboard_set_textarea(objects.obj7, objects.my_textarea);
 }
 
 void tick_screen_main() {

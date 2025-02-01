@@ -100,7 +100,16 @@
   },
   "variables": {
     "objID": "c6c71e16-53e1-217f-d03b-cef56c6b037a",
-    "globalVariables": [],
+    "globalVariables": [
+      {
+        "objID": "7231cd85-97aa-4ed3-c56a-c19677be9b64",
+        "name": "textAreaSelected",
+        "type": "boolean",
+        "defaultValue": "false",
+        "persistent": false,
+        "native": false
+      }
+    ],
     "structures": [],
     "enums": []
   },
@@ -190,9 +199,9 @@
                       "objID": "d18d4190-aac9-4911-edaf-7c916065edf2",
                       "type": "LVGLTextareaWidget",
                       "left": 182,
-                      "top": 240,
+                      "top": 183,
                       "width": 232,
-                      "height": 52,
+                      "height": 42,
                       "customInputs": [],
                       "customOutputs": [],
                       "style": {
@@ -204,6 +213,7 @@
                       "hiddenInEditor": false,
                       "timeline": [],
                       "eventHandlers": [],
+                      "identifier": "myTextarea",
                       "leftUnit": "px",
                       "topUnit": "px",
                       "widthUnit": "px",
@@ -237,7 +247,7 @@
                       "objID": "d12420bf-5947-4bdc-a421-c94d8d746ce0",
                       "type": "LVGLButtonWidget",
                       "left": 182,
-                      "top": 172,
+                      "top": 98,
                       "width": 100,
                       "height": 50,
                       "customInputs": [],
@@ -334,7 +344,7 @@
                       "objID": "b315765f-4242-4c6f-cd0b-9d39618fc48b",
                       "type": "LVGLButtonWidget",
                       "left": 182,
-                      "top": 98,
+                      "top": 15,
                       "width": 100,
                       "height": 50,
                       "customInputs": [],
@@ -588,6 +598,54 @@
               "groupIndex": 1,
               "tabviewPosition": "LEFT",
               "tabviewSize": 80
+            },
+            {
+              "objID": "30b050d9-c972-48ef-b555-0e3f9f885c8c",
+              "type": "LVGLKeyboardWidget",
+              "left": 114,
+              "top": 325,
+              "width": 660,
+              "height": 120,
+              "customInputs": [],
+              "customOutputs": [],
+              "style": {
+                "objID": "09590e83-b9b7-4735-822c-e59db5fac2fa",
+                "useStyle": "default",
+                "conditionalStyles": [],
+                "childStyles": []
+              },
+              "timeline": [],
+              "eventHandlers": [],
+              "leftUnit": "px",
+              "topUnit": "px",
+              "widthUnit": "px",
+              "heightUnit": "px",
+              "children": [],
+              "widgetFlags": "GESTURE_BUBBLE|PRESS_LOCK|SCROLLABLE|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_WITH_ARROW|SNAPPABLE",
+              "hiddenFlagType": "literal",
+              "clickableFlag": true,
+              "clickableFlagType": "literal",
+              "flagScrollbarMode": "",
+              "flagScrollDirection": "",
+              "scrollSnapX": "",
+              "scrollSnapY": "",
+              "checkedStateType": "literal",
+              "disabledStateType": "literal",
+              "states": "",
+              "localStyles": {
+                "objID": "bae6b2f2-a9d8-44bd-f5dd-f42f70be3256",
+                "definition": {
+                  "MAIN": {
+                    "DEFAULT": {
+                      "align": "DEFAULT"
+                    }
+                  }
+                }
+              },
+              "group": "mainGroup",
+              "groupIndex": 0,
+              "textarea": "my_textarea",
+              "mode": "TEXT_LOWER"
             }
           ],
           "widgetFlags": "CLICKABLE|PRESS_LOCK|CLICK_FOCUSABLE|GESTURE_BUBBLE|SNAPPABLE|SCROLLABLE|SCROLL_ELASTIC|SCROLL_MOMENTUM|SCROLL_CHAIN_HOR|SCROLL_CHAIN_VER",
