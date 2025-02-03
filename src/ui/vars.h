@@ -15,13 +15,11 @@ extern "C" {
 // Flow global variables
 
 enum FlowGlobalVariables {
-    FLOW_GLOBAL_VARIABLE_TEXT_AREA_SELECTED = 0
+    FLOW_GLOBAL_VARIABLE_NONE
 };
 
 // Native global variables
 
-extern bool get_var_text_area_selected();
-extern void set_var_text_area_selected(bool value);
 
 
 #ifdef __cplusplus

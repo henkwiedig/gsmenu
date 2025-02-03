@@ -1,4 +1,5 @@
 build/
 aarch64/
 disk.raw
+bin/gsmenu.eez-project-ui-state
 bin/
