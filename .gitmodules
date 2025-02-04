@@ -1,3 +1,6 @@
 [submodule "lvgl"]
 	path = lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "eez-framework"]
+	path = eez-framework
+	url = https://github.com/eez-open/eez-framework.git
