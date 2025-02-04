@@ -8,6 +8,12 @@ extern "C" {
 #endif
 
 
+enum {
+    ACTION_SET_FOCUS_PROPERTY_TARGET,
+};
+extern void action_set_focus(lv_event_t * e);
+
+
 
 #ifdef __cplusplus
 }
