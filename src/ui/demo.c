@@ -159,16 +159,21 @@ static void dropdown_event_handler(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
     lv_key_t *key = lv_event_get_key(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
+    switch (code)
+    {
+    case LV_EVENT_CANCEL:
+    case LV_EVENT_VALUE_CHANGED:
         char buf[32];
         lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
         LV_LOG_USER("Option: %s", buf);
         control_mode = GSMENU_CONTROL_MODE_NAV;
-    } else if (code == LV_EVENT_KEY && key == LV_KEY_RIGHT)
-    {
+        break;
+    case LV_EVENT_READY:
         printf("Switching control mode\n");
-        control_mode = GSMENU_CONTROL_MODE_EDIT;
-    } 
+        control_mode = GSMENU_CONTROL_MODE_EDIT;    
+    default:
+        break;
+    }
 }
 
 static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * txt)
