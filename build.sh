@@ -49,7 +49,7 @@ EOL
 fi
 
 sudo chroot aarch64 sh -c "cd /usr/src/gsmenu && cmake -B build -S ."
-sudo chroot aarch64 make -C /usr/src/gsmenu/build -j
+sudo chroot aarch64 make -C /usr/src/gsmenu/build
 sudo umount $output/usr/src/gsmenu
 sudo umount $output
 sudo losetup -d ${device}

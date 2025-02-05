@@ -1,17 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 project(gsmenu)
+find_package(PkgConfig REQUIRED)
 
 set("LV_USE_LINUX_DRM" "ON")
+
+option(USE_SIMULATOR "Enable simulator mode" OFF)
+if(USE_SIMULATOR)
+    add_definitions(-DUSE_SIMULATOR)
+    pkg_check_modules(LIBSDL REQUIRED sdl2)
+endif()
 
 # Uncomment if the program needs debugging
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -ggdb")
 
-find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
 include_directories(${LIBDRM_INCLUDE_DIRS})
-
-pkg_check_modules(LIBSDL REQUIRED sdl2)
-include_directories(${LIBSDL_INCLUDE_DIRS})
 
 set(CMAKE_C_STANDARD 99) # LVGL officially supports C99 and above
 set(CMAKE_CXX_STANDARD 17) #C17

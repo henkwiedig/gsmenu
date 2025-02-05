@@ -12,6 +12,7 @@ git submodule update --init --recursive
 
 ```
 cmake -B build -S .
+# or cmake -DUSE_SIMULATOR=ON -B build -S .
 make -C build -j
 ```
 
