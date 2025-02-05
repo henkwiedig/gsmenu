@@ -8,6 +8,8 @@ option(USE_SIMULATOR "Enable simulator mode" OFF)
 if(USE_SIMULATOR)
     add_definitions(-DUSE_SIMULATOR)
     pkg_check_modules(LIBSDL REQUIRED sdl2)
+else()
+    pkg_check_modules(LIBGPIOD REQUIRED libgpiod)
 endif()
 
 # Uncomment if the program needs debugging
@@ -33,4 +35,4 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/sr
 
 add_executable(gsmenu main.c ${SOURCES})
 
-target_link_libraries(gsmenu lvgl ${LIBDRM_LIBRARIES} ${LIBSDL_LIBRARIES})
+target_link_libraries(gsmenu lvgl ${LIBDRM_LIBRARIES} ${LIBSDL_LIBRARIES} ${LIBGPIOD_LIBRARIES})

@@ -3,15 +3,135 @@
 #include <stdlib.h>
 #include <termios.h>
 #include <unistd.h>
+#include <gpiod.h>
+#include <dirent.h>
+#include <string.h>
+#include <time.h>
+
 #include "../../lvgl/lvgl.h"
 #include "../../lvgl/src/core/lv_global.h"
-
 #include "input.h"
+
+#ifndef USE_SIMULATOR
+#define MAX_GPIO_BUTTONS 10  // Adjust based on your hardware
+#define MAX_GPIO_CHIPS 5     // Max number of GPIO chips to scan
+#define GPIO_PATH "/dev/"    // Base path for GPIO chips
+#define DEBOUNCE_DELAY_MS 50 // Debounce delay in milliseconds
+
+typedef struct {
+    const char *chip_name;  // GPIO chip device (e.g., "/dev/gpiochip0")
+    int line_num;           // GPIO pin number
+    lv_key_t lvgl_key;      // LVGL key mapping
+    struct gpiod_chip *chip;
+    struct gpiod_line *line;
+    int last_state;         // Last state of the GPIO (pressed or released)
+    long last_time;         // Last time the state was updated (for debouncing)
+} gpio_button_t;
+
+// Define all GPIO buttons
+gpio_button_t gpio_buttons[] = {
+    {"/dev/gpiochip3", 9, LV_KEY_PREV, NULL, NULL, -1, 0},  // Up
+    {"/dev/gpiochip3", 10, LV_KEY_NEXT, NULL, NULL, -1, 0}, // Down
+    {"/dev/gpiochip3", 2, LV_KEY_LEFT, NULL, NULL, -1, 0},  // Left
+    {"/dev/gpiochip3", 1, LV_KEY_ENTER, NULL, NULL, -1, 0}, // Right
+    {"/dev/gpiochip3", 18, LV_KEY_ENTER, NULL, NULL, -1, 0}, // OK
+};
+#endif
 
 // Global or static variable to store the next key state
 static lv_key_t next_key = LV_KEY_END;  // Default to no key
 static bool next_key_pressed = false;    // Indicates if the next key should be pressed or released
 gsmenu_control_mode_t control_mode = GSMENU_CONTROL_MODE_NAV;
+
+#ifndef USE_SIMULATOR
+// Function to initialize GPIO buttons
+void setup_gpio(void) {
+    for (size_t i = 0; i < sizeof(gpio_buttons) / sizeof(gpio_buttons[0]); i++) {
+        gpio_buttons[i].chip = gpiod_chip_open(gpio_buttons[i].chip_name);
+        if (!gpio_buttons[i].chip) {
+            perror("Failed to open GPIO chip");
+            continue;
+        }
+
+        gpio_buttons[i].line = gpiod_chip_get_line(gpio_buttons[i].chip, gpio_buttons[i].line_num);
+        if (!gpio_buttons[i].line) {
+            perror("Failed to get GPIO line");
+            gpiod_chip_close(gpio_buttons[i].chip);
+            continue;
+        }
+
+        if (gpiod_line_request_input(gpio_buttons[i].line, "lvgl_input") < 0) {
+            perror("Failed to request GPIO input");
+            gpiod_chip_close(gpio_buttons[i].chip);
+            gpio_buttons[i].chip = NULL;
+            gpio_buttons[i].line = NULL;
+        }
+    }
+}
+
+// Function to debounce and read GPIO inputs
+void handle_gpio_input(void) {
+    struct timespec ts;
+    for (size_t i = 0; i < sizeof(gpio_buttons) / sizeof(gpio_buttons[0]); i++) {
+        if (gpio_buttons[i].chip && gpio_buttons[i].line) {
+            int current_state = gpiod_line_get_value(gpio_buttons[i].line);
+            
+            // Get current time in milliseconds
+            clock_gettime(CLOCK_MONOTONIC, &ts);
+            long current_time = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+
+            // Check if the state has changed and is stable for the debounce period
+            if (current_state != gpio_buttons[i].last_state &&
+                (current_time - gpio_buttons[i].last_time) > DEBOUNCE_DELAY_MS) {
+                gpio_buttons[i].last_state = current_state;
+                gpio_buttons[i].last_time = current_time;
+
+                if (current_state == 1) { // Active high: pressed when the value is 1
+                    // Adjust for control_mode
+                    if (control_mode == GSMENU_CONTROL_MODE_NAV) {
+                        // Navigation mode (arrows)
+                        next_key = gpio_buttons[i].lvgl_key;
+                    } else {
+                        // Other modes (OK or Right for instance)
+                        switch (gpio_buttons[i].line_num) {
+                            case 9:  // Up
+                                next_key = LV_KEY_UP;
+                                break;
+                            case 10: // Down
+                                next_key = LV_KEY_DOWN;
+                                break;
+                            case 2:  // Left
+                                next_key = LV_KEY_LEFT;
+                                break;
+                            case 1:  // Right
+                                next_key = LV_KEY_RIGHT;
+                                break;
+                            case 18: // OK
+                                next_key = LV_KEY_ENTER;
+                                break;
+                        }
+                    }
+                    next_key_pressed = true;
+                    printf("GPIO Pressed: %d (Chip: %s)\n", gpio_buttons[i].line_num, gpio_buttons[i].chip_name);
+                    break;
+                }
+            }
+        }
+    }
+}
+
+
+// Cleanup function for GPIO
+void cleanup_gpio(void) {
+    for (size_t i = 0; i < sizeof(gpio_buttons) / sizeof(gpio_buttons[0]); i++) {
+        if (gpio_buttons[i].chip) {
+            gpiod_chip_close(gpio_buttons[i].chip);
+            gpio_buttons[i].chip = NULL;
+            gpio_buttons[i].line = NULL;
+        }
+    }
+}
+#endif
 
 // Function to make stdin non-blocking
 void set_stdin_nonblock(void) {
@@ -82,7 +202,11 @@ void handle_keyboard_input(void) {
 // Custom function to simulate keyboard input
 static void virtual_keyboard_read(lv_indev_t * indev, lv_indev_data_t * data) {
     static bool key_sent = false;  // Track if a key event was sent
-    
+
+#ifndef USE_SIMULATOR
+    handle_gpio_input(); // Check GPIO state separately from keyboard input
+#endif
+
     if (next_key != LV_KEY_END) {
         data->key = next_key;
         data->state = next_key_pressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
@@ -105,9 +229,10 @@ static void virtual_keyboard_read(lv_indev_t * indev, lv_indev_data_t * data) {
 // Function to create the virtual keyboard
 lv_indev_t * create_virtual_keyboard() {
 
-    // setup keybard inout from stdin
-    set_stdin_nonblock();
-
+    set_stdin_nonblock(); // setup keyboard input from stdin
+#ifndef USE_SIMULATOR 
+    setup_gpio();          // Initialize GPIO
+#endif
     lv_indev_t * indev_drv = lv_indev_create();
     lv_indev_set_type(indev_drv, LV_INDEV_TYPE_KEYPAD);
     lv_indev_set_read_cb(indev_drv, virtual_keyboard_read);
@@ -116,4 +241,3 @@ lv_indev_t * create_virtual_keyboard() {
 
     return indev_drv;
 }
-
