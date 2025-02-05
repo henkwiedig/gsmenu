@@ -17,7 +17,7 @@ static lv_obj_t * create_slider(lv_obj_t * parent,
                                 const char * icon, const char * txt, int32_t min, int32_t max, int32_t val);
 static lv_obj_t * create_switch(lv_obj_t * parent,
                                 const char * icon, const char * txt, bool chk);
-static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * txt);
+static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * label_txt, const char * txt);
 
 lv_obj_t * lv_example_menu_5(lv_group_t * group)
 {
@@ -46,7 +46,7 @@ lv_obj_t * lv_example_menu_5(lv_group_t * group)
     create_slider(section, LV_SYMBOL_SETTINGS, "Velocity", 0, 150, 120);
     create_slider(section, LV_SYMBOL_SETTINGS, "Acceleration", 0, 150, 50);
     create_slider(section, LV_SYMBOL_SETTINGS, "Weight limit", 0, 150, 80);
-    create_dropdown(section,LV_SYMBOL_SETTINGS, "Foo\nBar\nBuzz");
+    create_dropdown(section,LV_SYMBOL_SETTINGS, "Frequency", "Foo\nBar\nBuzz");
 
     lv_obj_t * sub_sound_page = lv_menu_page_create(menu, NULL);
     lv_obj_set_style_pad_hor(sub_sound_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
@@ -176,17 +176,19 @@ static void dropdown_event_handler(lv_event_t * e)
     }
 }
 
-static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * txt)
+static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * label_txt, const char * txt)
 {
 
-    lv_obj_t * lable = create_text(parent, NULL, "Hello World", LV_MENU_ITEM_BUILDER_VARIANT_2,NULL);
+    lv_obj_t * obj = lv_menu_cont_create(parent);
 
-    lv_obj_t * obj = lv_dropdown_create(lable);   
-    lv_dropdown_set_options(obj, txt);
-    lv_dropdown_set_dir(obj, LV_DIR_LEFT);
-    lv_dropdown_set_symbol(obj, LV_SYMBOL_LEFT);
+    lv_obj_t * label = lv_label_create(obj);
+    lv_label_set_text(label, label_txt);
 
-    lv_obj_align(obj, LV_ALIGN_TOP_MID, 0, 20);
-    lv_obj_add_event_cb(obj, dropdown_event_handler, LV_EVENT_ALL, NULL);
+    lv_obj_t * dd = lv_dropdown_create(obj); 
+    lv_dropdown_set_options(dd, txt);
+    lv_dropdown_set_dir(dd, LV_DIR_RIGHT);
+    lv_dropdown_set_symbol(dd, LV_SYMBOL_RIGHT);
+
+    lv_obj_add_event_cb(dd, dropdown_event_handler, LV_EVENT_ALL, NULL);
     return obj;
 }
