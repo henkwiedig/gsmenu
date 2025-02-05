@@ -14,3 +14,6 @@ git submodule update --init --recursive
 cmake -B build -S .
 make -C build -j
 ```
+
+
+https://cache.nxp.com/secured/bsps/Gui-Guider-Setup-1.9.0-GA.deb.zip?fileExt=.zip

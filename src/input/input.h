@@ -17,4 +17,4 @@ void handle_keyboard_input(void);
 static void virtual_keyboard_read(lv_indev_t * indev, lv_indev_data_t * data);
 
 // Function to create the virtual keyboard
-lv_indev_t * create_virtual_keyboard(void);
+lv_indev_t * create_virtual_keyboard();

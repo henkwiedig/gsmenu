@@ -10,6 +10,9 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
 include_directories(${LIBDRM_INCLUDE_DIRS})
 
+pkg_check_modules(LIBSDL REQUIRED sdl2)
+include_directories(${LIBSDL_INCLUDE_DIRS})
+
 set(CMAKE_C_STANDARD 99) # LVGL officially supports C99 and above
 set(CMAKE_CXX_STANDARD 17) #C17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,14 +24,10 @@ set(LV_CONF_BUILD_DISABLE_EXAMPLES 1)
 add_subdirectory(lvgl)
 target_include_directories(lvgl PUBLIC ${PROJECT_SOURCE_DIR})
 
-add_definitions(-DEEZ_FOR_LVGL)
-add_subdirectory(eez-framework)
-target_include_directories(eez-framework PRIVATE ${CMAKE_SOURCE_DIR})
-
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/src/ui)
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/src/ui/*.c)
 
 add_executable(gsmenu main.c ${SOURCES})
 
-target_link_libraries(gsmenu lvgl eez-framework ${LIBDRM_LIBRARIES})
+target_link_libraries(gsmenu lvgl ${LIBDRM_LIBRARIES} ${LIBSDL_LIBRARIES})

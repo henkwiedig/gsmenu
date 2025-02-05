@@ -39,13 +39,13 @@ void handle_keyboard_input(void) {
         switch(c) {
             case 'w':
             case 'W':
-                next_key = LV_KEY_UP;
+                next_key = LV_KEY_PREV;
                 next_key_pressed = true;
                 printf("Up\n");
                 break;
             case 's':
             case 'S':
-                next_key = LV_KEY_DOWN;
+                next_key = LV_KEY_NEXT;
                 next_key_pressed = true;
                 printf("Down\n");
                 break;
@@ -78,28 +78,39 @@ void handle_keyboard_input(void) {
 
 // Custom function to simulate keyboard input
 static void virtual_keyboard_read(lv_indev_t * indev, lv_indev_data_t * data) {
+    static bool key_sent = false;  // Track if a key event was sent
+    
     if (next_key != LV_KEY_END) {
         data->key = next_key;
+        data->state = next_key_pressed ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
 
-        // Simulate the press/release alternating behavior
-        if (next_key_pressed) {
-            data->state = LV_INDEV_STATE_PR;  // Key is pressed
-        } else {
-            data->state = LV_INDEV_STATE_REL;  // Key is released
+        next_key_pressed = !next_key_pressed;  // Toggle state
+
+        if (!next_key_pressed) {  
+            next_key = LV_KEY_END;  // Reset key after release event
         }
 
-        // After sending the event, toggle the key state for next time
-        next_key_pressed = !next_key_pressed;  // Toggle the key state for alternating presses/releases
-        next_key = LV_KEY_END;  // Reset next_key to indicate it's been processed
+        key_sent = true;  // Mark that a key was sent
+    } else if (key_sent) {
+        data->state = LV_INDEV_STATE_REL;  // Ensure release event is sent
+        key_sent = false;  // Reset the flag
+    } else {
+        data->state = LV_INDEV_STATE_REL;
     }
 }
 
 // Function to create the virtual keyboard
-lv_indev_t * create_virtual_keyboard(void) {
-    lv_indev_t *indev_drv = lv_indev_create();
+lv_indev_t * create_virtual_keyboard() {
+
+    // setup keybard inout from stdin
+    set_stdin_nonblock();
+
+    lv_indev_t * indev_drv = lv_indev_create();
     lv_indev_set_type(indev_drv, LV_INDEV_TYPE_KEYPAD);
     lv_indev_set_read_cb(indev_drv, virtual_keyboard_read);
 
-    return indev_drv; // Return the new input device
+    lv_indev_enable(indev_drv, true);
+
+    return indev_drv;
 }
 
