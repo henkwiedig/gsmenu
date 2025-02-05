@@ -48,7 +48,7 @@ void handle_keyboard_input(void) {
                 break;
             case 's':
             case 'S':
-                next_key = next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_NEXT : LV_KEY_DOWN;
+                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_NEXT : LV_KEY_DOWN;
                 next_key_pressed = true;
                 printf("Down\n");
                 break;
@@ -60,7 +60,7 @@ void handle_keyboard_input(void) {
                 break;
             case 'd':
             case 'D':
-                next_key = LV_KEY_RIGHT;
+                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_ENTER : LV_KEY_RIGHT;
                 next_key_pressed = true;
                 printf("Right\n");
                 break;

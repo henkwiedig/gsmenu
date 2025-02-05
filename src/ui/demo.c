@@ -146,7 +146,7 @@ static lv_obj_t * create_slider(lv_obj_t * parent, const char * icon, const char
 
 static lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char * txt, bool chk)
 {
-    lv_obj_t * obj = create_text(parent, icon, txt, LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);
+    lv_obj_t * obj = create_text(parent, NULL, "Hello World", LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);
 
     lv_obj_t * sw = lv_switch_create(obj);
     lv_obj_add_state(sw, chk ? LV_STATE_CHECKED : 0);
@@ -165,7 +165,7 @@ static void dropdown_event_handler(lv_event_t * e)
     case LV_EVENT_VALUE_CHANGED:
         char buf[32];
         lv_dropdown_get_selected_str(obj, buf, sizeof(buf));
-        LV_LOG_USER("Option: %s", buf);
+        printf("Option: %s\n", buf);
         control_mode = GSMENU_CONTROL_MODE_NAV;
         break;
     case LV_EVENT_READY:
@@ -178,10 +178,13 @@ static void dropdown_event_handler(lv_event_t * e)
 
 static lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * txt)
 {
-    lv_obj_t * obj = lv_dropdown_create(parent);   
+
+    lv_obj_t * lable = create_text(parent, NULL, "Hello World", LV_MENU_ITEM_BUILDER_VARIANT_2,NULL);
+
+    lv_obj_t * obj = lv_dropdown_create(lable);   
     lv_dropdown_set_options(obj, txt);
-    lv_dropdown_set_dir(obj, LV_DIR_RIGHT);
-    lv_dropdown_set_symbol(obj, LV_SYMBOL_RIGHT);
+    lv_dropdown_set_dir(obj, LV_DIR_LEFT);
+    lv_dropdown_set_symbol(obj, LV_SYMBOL_LEFT);
 
     lv_obj_align(obj, LV_ALIGN_TOP_MID, 0, 20);
     lv_obj_add_event_cb(obj, dropdown_event_handler, LV_EVENT_ALL, NULL);
