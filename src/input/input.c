@@ -6,9 +6,12 @@
 #include "../../lvgl/lvgl.h"
 #include "../../lvgl/src/core/lv_global.h"
 
+#include "input.h"
+
 // Global or static variable to store the next key state
 static lv_key_t next_key = LV_KEY_END;  // Default to no key
 static bool next_key_pressed = false;    // Indicates if the next key should be pressed or released
+gsmenu_control_mode_t control_mode = GSMENU_CONTROL_MODE_NAV;
 
 // Function to make stdin non-blocking
 void set_stdin_nonblock(void) {
@@ -39,13 +42,13 @@ void handle_keyboard_input(void) {
         switch(c) {
             case 'w':
             case 'W':
-                next_key = LV_KEY_PREV;
+                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_PREV : LV_KEY_UP;
                 next_key_pressed = true;
                 printf("Up\n");
                 break;
             case 's':
             case 'S':
-                next_key = LV_KEY_NEXT;
+                next_key = next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_NEXT : LV_KEY_DOWN;
                 next_key_pressed = true;
                 printf("Down\n");
                 break;
