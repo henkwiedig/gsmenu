@@ -2,6 +2,10 @@
 #include "../../lvgl/lvgl.h"
 
 #include "helper.h"
+#include "air_wfbng.h"
+#include "air_camera.h"
+#include "air_telemetry.h"
+#include "gs_telemetry.h"
 #include "wifi.h"
 
 static void back_event_handler(lv_event_t * e);
@@ -27,26 +31,29 @@ lv_obj_t * create_menu(lv_group_t * group)
     lv_obj_t * section;
 
     /*Create sub pages*/
-    lv_obj_t * sub_wfbng_page = lv_menu_page_create(menu, NULL);
-    lv_obj_set_style_pad_hor(sub_wfbng_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    lv_menu_separator_create(sub_wfbng_page);
-    section = lv_menu_section_create(sub_wfbng_page);
-    create_slider(section, LV_SYMBOL_SETTINGS, "Velocity", 0, 150, 120);
-    create_slider(section, LV_SYMBOL_SETTINGS, "Acceleration", 0, 150, 50);
-    create_slider(section, LV_SYMBOL_SETTINGS, "Weight limit", 0, 150, 80);
-    create_dropdown(section,LV_SYMBOL_SETTINGS, "Frequency", "Foo\nBar\nBuzz");
+    lv_obj_t * sub_air_wfbng_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_air_wfbng_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_air_wfbng_page);
+    section = lv_menu_section_create(sub_air_wfbng_page);
+    create_air_wfbng_menu(section);
 
-    lv_obj_t * sub_camera_page = lv_menu_page_create(menu, NULL);
-    lv_obj_set_style_pad_hor(sub_camera_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    lv_menu_separator_create(sub_camera_page);
-    section = lv_menu_section_create(sub_camera_page);
-    create_switch(section, LV_SYMBOL_AUDIO, "FPV", false);
+    lv_obj_t * sub_air_camera_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_air_camera_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_air_camera_page);
+    section = lv_menu_section_create(sub_air_camera_page);
+    create_air_camera_menu(section);
 
-    lv_obj_t * sub_telemetry_page = lv_menu_page_create(menu, NULL);
-    lv_obj_set_style_pad_hor(sub_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    lv_menu_separator_create(sub_telemetry_page);
-    section = lv_menu_section_create(sub_telemetry_page);
-    create_slider(section, LV_SYMBOL_SETTINGS, "Brightness", 0, 150, 100);
+    lv_obj_t * sub_air_telemetry_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_air_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_air_telemetry_page);
+    section = lv_menu_section_create(sub_air_telemetry_page);
+    create_air_telemetry_menu(section);
+
+    lv_obj_t * sub_gs_telemetry_page = lv_menu_page_create(menu, NULL);
+    lv_obj_set_style_pad_hor(sub_gs_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_gs_telemetry_page);
+    section = lv_menu_section_create(sub_gs_telemetry_page);
+    create_gs_telemetry_menu(section);
 
     lv_obj_t * sub_wlan_page = lv_menu_page_create(menu, NULL);
     lv_obj_set_style_pad_hor(sub_wlan_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
@@ -59,16 +66,16 @@ lv_obj_t * create_menu(lv_group_t * group)
     lv_obj_set_style_pad_hor(root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     section = lv_menu_section_create(root_page);
     cont = create_text(section, LV_SYMBOL_WIFI, "WFB-NG", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
-    lv_menu_set_load_page_event(menu, cont, sub_wfbng_page);
+    lv_menu_set_load_page_event(menu, cont, sub_air_wfbng_page);
     cont = create_text(section, LV_SYMBOL_IMAGE, "Camera", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
-    lv_menu_set_load_page_event(menu, cont, sub_camera_page);
+    lv_menu_set_load_page_event(menu, cont, sub_air_camera_page);
     cont = create_text(section, LV_SYMBOL_DOWNLOAD, "Telemetry", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
-    lv_menu_set_load_page_event(menu, cont, sub_telemetry_page);
+    lv_menu_set_load_page_event(menu, cont, sub_air_telemetry_page);
 
     create_text(root_page, NULL, "GS Settings", LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);
     section = lv_menu_section_create(root_page);
     cont = create_text(section, LV_SYMBOL_DOWNLOAD, "Telemetry", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
-    lv_menu_set_load_page_event(menu, cont, sub_wlan_page);
+    lv_menu_set_load_page_event(menu, cont, sub_gs_telemetry_page);
     cont = create_text(section, LV_SYMBOL_WIFI, "WLAN", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
     lv_menu_set_load_page_event(menu, cont, sub_wlan_page);
 

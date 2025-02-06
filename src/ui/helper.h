@@ -19,3 +19,5 @@ lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char * txt,
 void dropdown_event_handler(lv_event_t * e);
 
 lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * label_txt, const char * txt);
+
+lv_obj_t * create_textarea(lv_obj_t * parent, const char * icon, const char * label_txt, bool password);

@@ -101,3 +101,24 @@ lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * la
     lv_obj_add_event_cb(dd, dropdown_event_handler, LV_EVENT_ALL, NULL);
     return obj;
 }
+
+lv_obj_t * create_textarea(lv_obj_t * parent, const char * icon, const char * label_txt, bool password)
+{
+    //lv_obj_t * obj = create_text(parent, icon, label_txt, LV_MENU_ITEM_BUILDER_VARIANT_2,NULL);
+
+    lv_obj_t * obj = lv_menu_cont_create(parent);
+
+    lv_obj_t * label = lv_label_create(obj);
+    lv_label_set_text(label, label_txt);    
+
+    lv_obj_t * ta = lv_textarea_create(obj);
+    //lv_textarea_set_placeholder_text(ta_ssid, "SSID");
+    lv_textarea_set_one_line(ta,true);
+    //lv_textarea_set_password_mode(ta, password);
+
+    // if(icon == NULL) {
+    //     lv_obj_add_flag(ta, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    // }
+
+    return obj;
+}
