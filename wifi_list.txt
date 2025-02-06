@@ -1,0 +1,1 @@
+nmcli -t -f SSID dev wifi list
