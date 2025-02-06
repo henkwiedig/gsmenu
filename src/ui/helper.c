@@ -52,9 +52,56 @@ lv_obj_t * create_slider(lv_obj_t * parent, const char * icon, const char * txt,
     return obj;
 }
 
+
+
+static void lv_spinbox_increment_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code  == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_increment(lv_event_get_user_data(e));
+    }
+}
+
+static void lv_spinbox_decrement_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_decrement(lv_event_get_user_data(e));
+    }
+}
+
+lv_obj_t * create_spinbox(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max,
+                                int32_t val)
+{
+    lv_obj_t * obj = lv_menu_cont_create(parent);
+
+    lv_obj_t * label = lv_label_create(obj);
+    lv_label_set_text(label, txt);
+    lv_label_set_text(label, txt);
+
+    lv_obj_t * spinbox = lv_spinbox_create(obj);
+    lv_spinbox_set_digit_format(spinbox, 2, 0);
+    lv_group_remove_obj(spinbox);
+    lv_spinbox_set_value(spinbox, val);
+    lv_spinbox_set_range(spinbox, min, max);
+    lv_obj_t * btn = lv_button_create(obj);
+    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_PLUS, 0);
+    lv_obj_add_event_cb(btn, lv_spinbox_increment_event_cb, LV_EVENT_ALL,  spinbox);
+
+    btn = lv_button_create(obj);
+    lv_obj_set_style_bg_image_src(btn, LV_SYMBOL_MINUS, 0);
+    lv_obj_add_event_cb(btn, lv_spinbox_decrement_event_cb, LV_EVENT_ALL, spinbox);
+
+
+    return obj;
+}
+
 lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char * txt, bool chk)
 {
-    lv_obj_t * obj = create_text(parent, NULL, txt, LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);
+    lv_obj_t * obj = lv_menu_cont_create(parent);
+
+    lv_obj_t * label = lv_label_create(obj);
+    lv_label_set_text(label, txt);
 
     lv_obj_t * sw = lv_switch_create(obj);
     lv_obj_add_state(sw, chk ? LV_STATE_CHECKED : 0);

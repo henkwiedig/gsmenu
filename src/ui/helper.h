@@ -21,3 +21,6 @@ void dropdown_event_handler(lv_event_t * e);
 lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * label_txt, const char * txt);
 
 lv_obj_t * create_textarea(lv_obj_t * parent, const char * icon, const char * label_txt, bool password);
+
+lv_obj_t * create_spinbox(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max,
+                                int32_t val);

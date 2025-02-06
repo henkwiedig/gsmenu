@@ -31,31 +31,31 @@ lv_obj_t * create_menu(lv_group_t * group)
     lv_obj_t * section;
 
     /*Create sub pages*/
-    lv_obj_t * sub_air_wfbng_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_air_wfbng_page = lv_menu_page_create(menu, "WFB-NG");
     lv_obj_set_style_pad_hor(sub_air_wfbng_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_air_wfbng_page);
     section = lv_menu_section_create(sub_air_wfbng_page);
     create_air_wfbng_menu(section);
 
-    lv_obj_t * sub_air_camera_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_air_camera_page = lv_menu_page_create(menu, "Camera");
     lv_obj_set_style_pad_hor(sub_air_camera_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_air_camera_page);
     section = lv_menu_section_create(sub_air_camera_page);
     create_air_camera_menu(section);
 
-    lv_obj_t * sub_air_telemetry_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_air_telemetry_page = lv_menu_page_create(menu, "Drone Telemetry");
     lv_obj_set_style_pad_hor(sub_air_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_air_telemetry_page);
     section = lv_menu_section_create(sub_air_telemetry_page);
     create_air_telemetry_menu(section);
 
-    lv_obj_t * sub_gs_telemetry_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_gs_telemetry_page = lv_menu_page_create(menu, "GS Telemetry");
     lv_obj_set_style_pad_hor(sub_gs_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_gs_telemetry_page);
     section = lv_menu_section_create(sub_gs_telemetry_page);
     create_gs_telemetry_menu(section);
 
-    lv_obj_t * sub_wlan_page = lv_menu_page_create(menu, NULL);
+    lv_obj_t * sub_wlan_page = lv_menu_page_create(menu, "WLAN");
     lv_obj_set_style_pad_hor(sub_wlan_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     lv_menu_separator_create(sub_wlan_page);
     section = lv_menu_section_create(sub_wlan_page);
