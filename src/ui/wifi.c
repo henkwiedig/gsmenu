@@ -27,8 +27,8 @@ static void btn_event_cb(lv_event_t * e)
         if (target_ta) {
             lv_keyboard_set_textarea(kb, target_ta);
             lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
-            lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));  
-            lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
+            lv_obj_update_layout(lv_obj_get_parent(kb));  
+            lv_obj_set_height(lv_obj_get_parent(kb), LV_VER_RES - lv_obj_get_height(kb));
             lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
             lv_obj_scroll_to_view_recursive(target_ta, LV_ANIM_OFF);
             lv_indev_wait_release(lv_event_get_param(e));
@@ -53,7 +53,7 @@ static void kb_event_cb(lv_event_t * e)
         control_mode = GSMENU_CONTROL_MODE_NAV;
     }
     else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
-        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES);
+        lv_obj_set_height(lv_obj_get_parent(kb), LV_VER_RES);
         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
         lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
         lv_group_focus_obj(lv_keyboard_get_textarea(kb));
@@ -93,7 +93,7 @@ void create_wifi_menu(lv_obj_t * parent) {
     obj = lv_label_create(pw_button);
     lv_label_set_text(obj,LV_SYMBOL_KEYBOARD);     
 
-    lv_obj_t * kb = lv_keyboard_create(lv_obj_get_parent(parent));
+    lv_obj_t * kb = lv_keyboard_create(lv_screen_active());
     lv_obj_add_flag(kb, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(ssid_button, btn_event_cb, LV_EVENT_ALL, kb);
