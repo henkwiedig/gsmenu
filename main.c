@@ -79,103 +79,6 @@ static void lv_linux_disp_init(void)
 
 extern gsmenu_control_mode_t control_mode;
 
-static lv_obj_t * ta_ssid;
-
-static void ta_event_cb(lv_event_t * e);
-static void kb_event_cb(lv_event_t * e);
-
-
-static void btn_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    lv_obj_t * kb = lv_event_get_user_data(e);
-    
-    if(code == LV_EVENT_CLICKED) {
-        lv_keyboard_set_textarea(kb, ta_ssid);
-        lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
-        lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));   /*Be sure the sizes are recalculated*/
-        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
-        lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_scroll_to_view_recursive(ta_ssid, LV_ANIM_OFF);
-        lv_indev_wait_release(lv_event_get_param(e));
-        lv_group_focus_obj(kb);
-    }
-}
-
-void menux(lv_obj_t * parent) {
-    
-    lv_obj_t *obj = lv_textarea_create(parent);
-    lv_textarea_set_one_line(obj, true);
-    ta_ssid = lv_textarea_create(parent);
-    lv_textarea_set_one_line(ta_ssid, true);
-    lv_obj_t * button = lv_button_create(parent);
-    obj = lv_label_create(button);
-    lv_label_set_text(obj,LV_SYMBOL_KEYBOARD);
-    obj = lv_textarea_create(parent);
-    lv_textarea_set_one_line(obj, true);
-
-    lv_obj_t * kb = lv_keyboard_create(parent);
-    lv_obj_add_flag(kb, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-    lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_event_cb(button, btn_event_cb, LV_EVENT_ALL, kb);    
-    lv_keyboard_set_textarea(kb, ta_ssid);
-    lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL,kb);
-
-}
-static void kb_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    lv_obj_t * kb = lv_event_get_user_data(e);
-
-    if (code == LV_EVENT_FOCUSED) {
-        printf("forcus\n");
-        control_mode = GSMENU_CONTROL_MODE_EDIT;
-    }
-    else if (code == LV_EVENT_DEFOCUSED)
-    {
-        printf("de-forcus\n");
-        control_mode = GSMENU_CONTROL_MODE_NAV;
-    }
-    else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
-        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES);
-        lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-        lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
-        lv_group_focus_obj(lv_keyboard_get_textarea(kb));
-}
-    
-}
-// static void ta_event_cb(lv_event_t * e)
-// {
-//     lv_event_code_t code = lv_event_get_code(e);
-//     lv_obj_t * ta = lv_event_get_target(e);
-//     lv_obj_t * kb = lv_event_get_user_data(e);
-//     // if(code == LV_EVENT_FOCUSED) {
-//     //     lv_keyboard_set_textarea(kb, ta);
-//     //     lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
-//     //     lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));   /*Be sure the sizes are recalculated*/
-//     //     lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
-//     //     lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
-//     //     lv_obj_scroll_to_view_recursive(ta, LV_ANIM_OFF);
-//     //     lv_indev_wait_release(lv_event_get_param(e));
-//     //     lv_group_focus_obj(kb);
-//     // }
-//     // else
-//     if(code == LV_EVENT_DEFOCUSED && control_mode == GSMENU_CONTROL_MODE_EDIT) {
-//         printf("here\n");
-//         lv_keyboard_set_textarea(kb, NULL);
-//         lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES);
-//         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-//         lv_indev_reset(NULL, ta);
-//     }
-//     else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
-//         lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES);
-//         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-//         lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
-//     }
-// }
-
 int main(int argc, char **argv)
 {
 
@@ -196,12 +99,6 @@ int main(int argc, char **argv)
     lv_group_set_default(lv_group_create());    
 
     menu = create_menu(lv_group_get_default());
-    // lv_obj_t * root = lv_obj_create(lv_screen_active());
-    // lv_obj_add_flag(root, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-    // lv_obj_set_size(root,800,480);
-    // lv_obj_set_layout(root, LV_LAYOUT_FLEX);
-    // lv_obj_set_flex_flow(root, LV_FLEX_FLOW_COLUMN);
-    // menux(root);
 
     lv_indev_set_group(indev_drv, lv_group_get_default());
 
