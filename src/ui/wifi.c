@@ -19,18 +19,21 @@ static lv_obj_t * ta_password;
 static void btn_event_cb(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    lv_obj_t * kb = lv_event_get_user_data(e);
-    
+    lv_obj_t * btn = lv_event_get_target(e);
+    lv_obj_t * kb = lv_event_get_user_data(e); 
+    lv_obj_t * target_ta = lv_obj_get_user_data(btn); // Retrieve associated textarea
+
     if(code == LV_EVENT_CLICKED) {
-        lv_keyboard_set_textarea(kb, ta_ssid);
-        lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
-        lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));   /*Be sure the sizes are recalculated*/
-        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
-        lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_scroll_to_view_recursive(ta_ssid, LV_ANIM_OFF);
-        lv_indev_wait_release(lv_event_get_param(e));
-        lv_group_focus_obj(kb);
+        if (target_ta) {
+            lv_keyboard_set_textarea(kb, target_ta);
+            lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
+            lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));  
+            lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
+            lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_scroll_to_view_recursive(target_ta, LV_ANIM_OFF);
+            lv_indev_wait_release(lv_event_get_param(e));
+            lv_group_focus_obj(kb);
+        }
     }
 }
 
@@ -79,12 +82,14 @@ void create_wifi_menu(lv_obj_t * parent) {
     ta_ssid = create_textarea(parent, NULL, "SSID", false);
     lv_obj_add_state(ta_ssid, LV_STATE_DISABLED);
     lv_obj_t * ssid_button = lv_button_create(lv_obj_get_parent(ta_ssid));
+    lv_obj_set_user_data(ssid_button, ta_ssid); // Associate button with text area
     lv_obj_t * obj = lv_label_create(ssid_button);
     lv_label_set_text(obj,LV_SYMBOL_KEYBOARD); 
    
     ta_password = create_textarea(parent, NULL, "Password", true);
     lv_obj_add_state(ta_password, LV_STATE_DISABLED);
     lv_obj_t * pw_button = lv_button_create(lv_obj_get_parent(ta_password));
+    lv_obj_set_user_data(pw_button, ta_password); // Associate button with text area
     obj = lv_label_create(pw_button);
     lv_label_set_text(obj,LV_SYMBOL_KEYBOARD);     
 
