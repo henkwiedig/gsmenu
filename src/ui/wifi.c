@@ -9,41 +9,93 @@ static void connect_wifi_event_handler(lv_event_t * e);
 static void disconnect_wifi_event_handler(lv_event_t * e);
 static void ta_event_cb(lv_event_t * e);
 
+extern lv_obj_t * menu;
 extern gsmenu_control_mode_t control_mode;
 
 static lv_obj_t * ta_ssid;
 static lv_obj_t * ta_password;
 
+
+static void btn_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    lv_obj_t * kb = lv_event_get_user_data(e);
+    
+    if(code == LV_EVENT_CLICKED) {
+        lv_keyboard_set_textarea(kb, ta_ssid);
+        lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
+        lv_obj_update_layout(lv_obj_get_parent(lv_obj_get_parent(kb)));   /*Be sure the sizes are recalculated*/
+        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES - lv_obj_get_height(kb));
+        lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_scroll_to_view_recursive(ta_ssid, LV_ANIM_OFF);
+        lv_indev_wait_release(lv_event_get_param(e));
+        lv_group_focus_obj(kb);
+    }
+}
+
+static void kb_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+    lv_obj_t * kb = lv_event_get_user_data(e);
+
+    if (code == LV_EVENT_FOCUSED) {
+        printf("forcus\n");
+        control_mode = GSMENU_CONTROL_MODE_EDIT;
+    }
+    else if (code == LV_EVENT_DEFOCUSED)
+    {
+        printf("de-forcus\n");
+        control_mode = GSMENU_CONTROL_MODE_NAV;
+    }
+    else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
+        lv_obj_set_height(lv_obj_get_parent(lv_obj_get_parent(kb)), LV_VER_RES);
+        lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+        lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
+        lv_group_focus_obj(lv_keyboard_get_textarea(kb));
+    }
+}
 void create_wifi_menu(lv_obj_t * parent) {
     
-    // lv_obj_t * cont_main = lv_menu_page_create(parent, NULL);
-    // lv_menu_set_page(menu, cont_main);
+    lv_obj_t * btn_scan = lv_btn_create(parent);
+    //lv_obj_set_size(btn_scan, 100, 40);
+    lv_obj_add_event_cb(btn_scan, scan_wifi_event_handler, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * label_scan = lv_label_create(btn_scan);
+    lv_label_set_text(label_scan, "Scan WiFi");
     
-    // lv_obj_t * btn_scan = lv_btn_create(parent);
-    // //lv_obj_set_size(btn_scan, 100, 40);
-    // lv_obj_add_event_cb(btn_scan, scan_wifi_event_handler, LV_EVENT_CLICKED, NULL);
-    // lv_obj_t * label_scan = lv_label_create(btn_scan);
-    // lv_label_set_text(label_scan, "Scan WiFi");
+    lv_obj_t * btn_connect = lv_btn_create(parent);
+    //lv_obj_set_size(btn_connect, 100, 40);
+    lv_obj_add_event_cb(btn_connect, connect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * label_connect = lv_label_create(btn_connect);
+    lv_label_set_text(label_connect, "Connect WiFi");
     
-    // lv_obj_t * btn_connect = lv_btn_create(parent);
-    // //lv_obj_set_size(btn_connect, 100, 40);
-    // lv_obj_add_event_cb(btn_connect, connect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
-    // lv_obj_t * label_connect = lv_label_create(btn_connect);
-    // lv_label_set_text(label_connect, "Connect WiFi");
-    
-    // lv_obj_t * btn_disconnect = lv_btn_create(parent);
-    // //lv_obj_set_size(btn_disconnect, 100, 40);
-    // lv_obj_add_event_cb(btn_disconnect, disconnect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
-    // lv_obj_t * label_disconnect = lv_label_create(btn_disconnect);
-    // lv_label_set_text(label_disconnect, "Disconnect WiFi");
+    lv_obj_t * btn_disconnect = lv_btn_create(parent);
+    //lv_obj_set_size(btn_disconnect, 100, 40);
+    lv_obj_add_event_cb(btn_disconnect, disconnect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * label_disconnect = lv_label_create(btn_disconnect);
+    lv_label_set_text(label_disconnect, "Disconnect WiFi");
     
     ta_ssid = create_textarea(parent, NULL, "SSID", false);
+    lv_obj_add_state(ta_ssid, LV_STATE_DISABLED);
+    lv_obj_t * ssid_button = lv_button_create(lv_obj_get_parent(ta_ssid));
+    lv_obj_t * obj = lv_label_create(ssid_button);
+    lv_label_set_text(obj,LV_SYMBOL_KEYBOARD); 
+   
     ta_password = create_textarea(parent, NULL, "Password", true);
+    lv_obj_add_state(ta_password, LV_STATE_DISABLED);
+    lv_obj_t * pw_button = lv_button_create(lv_obj_get_parent(ta_password));
+    obj = lv_label_create(pw_button);
+    lv_label_set_text(obj,LV_SYMBOL_KEYBOARD);     
 
-    lv_obj_t * kb = lv_keyboard_create(parent);
+    lv_obj_t * kb = lv_keyboard_create(lv_obj_get_parent(parent));
+    lv_obj_add_flag(kb, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_event_cb(ta_ssid, ta_event_cb, LV_EVENT_ALL, kb);
-    lv_keyboard_set_textarea(kb, ta_ssid);
+    lv_obj_add_event_cb(ssid_button, btn_event_cb, LV_EVENT_ALL, kb);
+    lv_obj_add_event_cb(pw_button, btn_event_cb, LV_EVENT_ALL, kb);
+    lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL,kb);
+    lv_keyboard_set_textarea(kb, NULL);    
+
 }
 
 static void scan_wifi_event_handler(lv_event_t * e) {
@@ -64,42 +116,4 @@ static void connect_wifi_event_handler(lv_event_t * e) {
 static void disconnect_wifi_event_handler(lv_event_t * e) {
     system("echo nmcli con down id $(nmcli -t -f NAME c show --active)");
     LV_LOG_USER("WiFi disconnected");
-}
-
-
-static void ta_event_cb(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * ta = lv_event_get_target(e);
-    lv_obj_t * kb = lv_event_get_user_data(e);
-    if(code == LV_EVENT_KEY) {
-        printf("Event fired\n");        
-        lv_key_t key = lv_event_get_key(e);        
-    }    
-
-    // printf("Event fired, code: %i, key: %i\n",code,key);
-
-    // if(code == LV_EVENT_FOCUSED) {
-    //     printf("Switching keybaord input mode\n");
-    //     lv_keyboard_set_textarea(kb, ta);
-    //     control_mode = GSMENU_CONTROL_MODE_EDIT;
-    // }
-
-    // if(code == LV_EVENT_DEFOCUSED) {
-    //     printf("Switching keybaord input out\n");
-    //     lv_keyboard_set_textarea(kb, NULL);
-    //     lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
-    //     control_mode = GSMENU_CONTROL_MODE_NAV;
-    // }
-    // switch (key)
-    // {
-    //     case LV_KEY_ENTER: {
-    //         printf("Switching control mode\n");
-    //         lv_obj_remove_flag(kb, LV_OBJ_FLAG_HIDDEN);
-    //         control_mode = GSMENU_CONTROL_MODE_EDIT;    
-    //         break;
-    //     }
-    //     default:
-    //         break;
-    // }    
 }

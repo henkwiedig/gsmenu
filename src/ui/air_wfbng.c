@@ -48,10 +48,10 @@ void create_air_wfbng_menu(lv_obj_t * parent) {
 
     create_dropdown(parent,LV_SYMBOL_SETTINGS, "Frequency", get_frequencies_string(Frequency58GHz, Frequency58GHzSize));
     create_dropdown(parent,LV_SYMBOL_SETTINGS, "Bandwith", "20\n40");
-    create_spinbox(parent,NULL, "MCS Index", 0 , 11, 1);
-    create_switch(parent,NULL,"STBC",true);
-    create_switch(parent,NULL,"LDPC",true);
-    create_spinbox(parent,NULL, "FEC_K", 0 , 12, 12);
-    create_spinbox(parent,NULL, "FEC_N", 0 , 12, 8);
+    create_spinbox(parent,LV_SYMBOL_SETTINGS, "MCS Index", 0 , 11, 1);
+    create_switch(parent,LV_SYMBOL_SETTINGS,"STBC",true);
+    create_switch(parent,LV_SYMBOL_SETTINGS,"LDPC",true);
+    create_spinbox(parent,LV_SYMBOL_SETTINGS, "FEC_K", 0 , 12, 12);
+    create_spinbox(parent,LV_SYMBOL_SETTINGS, "FEC_N", 0 , 12, 8);
 
 }

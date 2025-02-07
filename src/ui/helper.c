@@ -74,6 +74,12 @@ lv_obj_t * create_spinbox(lv_obj_t * parent, const char * icon, const char * txt
                                 int32_t val)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
+    lv_obj_t * img = NULL;
+
+    if(icon) {
+        img = lv_image_create(obj);
+        lv_image_set_src(img, icon);
+    }    
 
     lv_obj_t * label = lv_label_create(obj);
     lv_label_set_text(label, txt);
@@ -99,6 +105,12 @@ lv_obj_t * create_spinbox(lv_obj_t * parent, const char * icon, const char * txt
 lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char * txt, bool chk)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
+    lv_obj_t * img = NULL;
+
+    if(icon) {
+        img = lv_image_create(obj);
+        lv_image_set_src(img, icon);
+    }
 
     lv_obj_t * label = lv_label_create(obj);
     lv_label_set_text(label, txt);
@@ -137,6 +149,13 @@ lv_obj_t * create_dropdown(lv_obj_t * parent, const char * icon, const char * la
 
     lv_obj_t * obj = lv_menu_cont_create(parent);
 
+    lv_obj_t * img = NULL;
+
+    if(icon) {
+        img = lv_image_create(obj);
+        lv_image_set_src(img, icon);
+    }    
+
     lv_obj_t * label = lv_label_create(obj);
     lv_label_set_text(label, label_txt);
 
@@ -167,5 +186,5 @@ lv_obj_t * create_textarea(lv_obj_t * parent, const char * icon, const char * la
     //     lv_obj_add_flag(ta, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
     // }
 
-    return obj;
+    return ta;
 }
