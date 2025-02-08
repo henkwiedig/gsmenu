@@ -5,7 +5,7 @@
 #include "air_wfbng.h"
 #include "air_camera.h"
 #include "air_telemetry.h"
-#include "gs_telemetry.h"
+#include "gs_system.h"
 #include "wifi.h"
 
 static void back_event_handler(lv_event_t * e);
@@ -43,11 +43,11 @@ lv_obj_t * create_menu(lv_group_t * group)
     section = lv_menu_section_create(sub_air_telemetry_page);
     create_air_telemetry_menu(section);
 
-    lv_obj_t * sub_gs_telemetry_page = lv_menu_page_create(menu, LV_SYMBOL_DOWNLOAD" GS Telemetry");
-    lv_obj_set_style_pad_hor(sub_gs_telemetry_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    lv_menu_separator_create(sub_gs_telemetry_page);
-    section = lv_menu_section_create(sub_gs_telemetry_page);
-    create_gs_telemetry_menu(section);
+    lv_obj_t * sub_gs_system_page = lv_menu_page_create(menu, LV_SYMBOL_SETTINGS" System");
+    lv_obj_set_style_pad_hor(sub_gs_system_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_menu_separator_create(sub_gs_system_page);
+    section = lv_menu_section_create(sub_gs_system_page);
+    create_gs_system_menu(section);
 
     lv_obj_t * sub_wlan_page = lv_menu_page_create(menu, LV_SYMBOL_WIFI" WLAN");
     lv_obj_set_style_pad_hor(sub_wlan_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
@@ -69,8 +69,8 @@ lv_obj_t * create_menu(lv_group_t * group)
 
     create_text(root_page, NULL, "GS Settings", LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);
     section = lv_menu_section_create(root_page);
-    cont = create_text(section, LV_SYMBOL_DOWNLOAD, "Telemetry", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
-    lv_menu_set_load_page_event(menu, cont, sub_gs_telemetry_page);
+    cont = create_text(section, LV_SYMBOL_SETTINGS, "System Settings", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
+    lv_menu_set_load_page_event(menu, cont, sub_gs_system_page);
     cont = create_text(section, LV_SYMBOL_WIFI, "WLAN", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
     lv_menu_set_load_page_event(menu, cont, sub_wlan_page);
 
