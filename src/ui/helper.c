@@ -86,6 +86,7 @@ lv_obj_t * create_spinbox(lv_obj_t * parent, const char * icon, const char * txt
     lv_label_set_text(label, txt);
 
     lv_obj_t * spinbox = lv_spinbox_create(obj);
+    lv_obj_add_state(spinbox, LV_STATE_DISABLED);
     lv_spinbox_set_digit_format(spinbox, 2, 0);
     lv_group_remove_obj(spinbox);
     lv_spinbox_set_value(spinbox, val);

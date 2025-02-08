@@ -7,6 +7,7 @@
 #include "lvgl/lvgl.h"
 #include "lvgl/src/core/lv_global.h"
 #include "src/ui/ui.h"
+#include "src/ui/test.h"
 #include "src/input/input.h"
 
 lv_indev_t * indev_drv;
@@ -99,6 +100,7 @@ int main(int argc, char **argv)
     lv_group_set_default(lv_group_create());    
 
     menu = create_menu(lv_group_get_default());
+    //menu = create_test_menu(lv_group_get_default());
 
     lv_indev_set_group(indev_drv, lv_group_get_default());
 

@@ -56,8 +56,9 @@ lv_obj_t * create_menu(lv_group_t * group)
     create_wifi_menu(section);
 
     /*Create a root page*/
-    root_page = lv_menu_page_create(menu, "Drone Settings");
+    root_page = lv_menu_page_create(menu, "OpenIPC");
     lv_obj_set_style_pad_hor(root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    create_text(root_page, NULL, "Drone Settings", LV_MENU_ITEM_BUILDER_VARIANT_1,NULL);    
     section = lv_menu_section_create(root_page);
     cont = create_text(section, LV_SYMBOL_WIFI, "WFB-NG", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
     lv_menu_set_load_page_event(menu, cont, sub_air_wfbng_page);

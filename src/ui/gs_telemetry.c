@@ -6,6 +6,6 @@
 
 void create_gs_telemetry_menu(lv_obj_t * parent) {
 
-    create_switch(parent, LV_SYMBOL_AUDIO, "sub_gs_telemetry_page", false);
+    create_switch(parent,LV_SYMBOL_SETTINGS,"GS Rendering",false);
 
 }
