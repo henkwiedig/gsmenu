@@ -15,6 +15,7 @@ extern gsmenu_control_mode_t control_mode;
 static lv_obj_t * ta_ssid;
 static lv_obj_t * ta_password;
 
+static int old_height;
 
 static void btn_event_cb(lv_event_t * e)
 {
@@ -25,6 +26,7 @@ static void btn_event_cb(lv_event_t * e)
 
     if(code == LV_EVENT_CLICKED) {
         if (target_ta) {
+            old_height = lv_obj_get_height(lv_obj_get_parent(kb));
             lv_keyboard_set_textarea(kb, target_ta);
             lv_obj_set_style_max_height(kb, LV_VER_RES * 2 / 3, 0);
             lv_obj_update_layout(lv_obj_get_parent(kb));  
@@ -53,28 +55,26 @@ static void kb_event_cb(lv_event_t * e)
         control_mode = GSMENU_CONTROL_MODE_NAV;
     }
     else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
-        lv_obj_set_height(lv_obj_get_parent(kb), LV_VER_RES);
+        lv_obj_set_height(lv_obj_get_parent(kb), old_height);
         lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
         lv_indev_reset(NULL, ta);   /*To forget the last clicked object to make it focusable again*/
         lv_group_focus_obj(lv_keyboard_get_textarea(kb));
+        lv_obj_update_layout(lv_obj_get_parent(kb));
     }
 }
 void create_wifi_menu(lv_obj_t * parent) {
     
     lv_obj_t * btn_scan = lv_btn_create(parent);
-    //lv_obj_set_size(btn_scan, 100, 40);
     lv_obj_add_event_cb(btn_scan, scan_wifi_event_handler, LV_EVENT_CLICKED, NULL);
     lv_obj_t * label_scan = lv_label_create(btn_scan);
     lv_label_set_text(label_scan, "Scan WiFi");
     
     lv_obj_t * btn_connect = lv_btn_create(parent);
-    //lv_obj_set_size(btn_connect, 100, 40);
     lv_obj_add_event_cb(btn_connect, connect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
     lv_obj_t * label_connect = lv_label_create(btn_connect);
     lv_label_set_text(label_connect, "Connect WiFi");
     
     lv_obj_t * btn_disconnect = lv_btn_create(parent);
-    //lv_obj_set_size(btn_disconnect, 100, 40);
     lv_obj_add_event_cb(btn_disconnect, disconnect_wifi_event_handler, LV_EVENT_CLICKED, NULL);
     lv_obj_t * label_disconnect = lv_label_create(btn_disconnect);
     lv_label_set_text(label_disconnect, "Disconnect WiFi");
@@ -93,14 +93,13 @@ void create_wifi_menu(lv_obj_t * parent) {
     obj = lv_label_create(pw_button);
     lv_label_set_text(obj,LV_SYMBOL_KEYBOARD);     
 
-    lv_obj_t * kb = lv_keyboard_create(lv_screen_active());
+    lv_obj_t * kb = lv_keyboard_create(parent);
     lv_obj_add_flag(kb, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(ssid_button, btn_event_cb, LV_EVENT_ALL, kb);
     lv_obj_add_event_cb(pw_button, btn_event_cb, LV_EVENT_ALL, kb);
     lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL,kb);
     lv_keyboard_set_textarea(kb, NULL);    
-
 }
 
 static void scan_wifi_event_handler(lv_event_t * e) {
