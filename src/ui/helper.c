@@ -8,6 +8,7 @@ lv_obj_t * create_text(lv_obj_t * parent, const char * icon, const char * txt,
                               lv_menu_builder_variant_t builder_variant, lv_group_t * group)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
+    //lv_obj_set_style_bg_opa(obj, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     if (group)
         lv_group_add_obj(group, obj);
           
@@ -35,19 +36,69 @@ lv_obj_t * create_text(lv_obj_t * parent, const char * icon, const char * txt,
     return obj;
 }
 
+
+static void slider_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * slider = lv_event_get_target(e);
+    lv_obj_t * slider_label = lv_event_get_user_data(e);
+
+    switch (code)
+    {
+    case LV_EVENT_FOCUSED:
+        {
+            printf("forcus\n");
+            control_mode = GSMENU_CONTROL_MODE_SLIDER;
+            break;
+        }
+    case LV_EVENT_DEFOCUSED:
+        {
+            printf("de-forcus\n");
+            control_mode = GSMENU_CONTROL_MODE_NAV;
+            break;  
+        }
+    case LV_EVENT_VALUE_CHANGED:
+        {
+            char buf[8];
+            lv_snprintf(buf, sizeof(buf), "%d", (int)lv_slider_get_value(slider));
+            lv_label_set_text(slider_label, buf);
+            //lv_obj_align_to(slider_label, slider, LV_ALIGN_OUT_BOTTOM_MID, 0, 10);
+            break;  
+        }
+    default:
+        break;
+    }
+}
+
 lv_obj_t * create_slider(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max,
                                 int32_t val)
 {
-    lv_obj_t * obj = create_text(parent, icon, txt, LV_MENU_ITEM_BUILDER_VARIANT_2,NULL);
+    lv_obj_t * obj = lv_menu_cont_create(parent);
+
+    lv_obj_t * img = NULL;
+    lv_obj_t * label = NULL;
+
+    if(icon) {
+        img = lv_image_create(obj);
+        lv_image_set_src(img, icon);
+    }
+
+    if(txt) {
+        label = lv_label_create(obj);
+        lv_label_set_text(label, txt);
+        //lv_obj_set_flex_grow(label, 1);
+    }    
+
+    lv_obj_t * slider_label = lv_label_create(obj);
+    char s[11]; 
+    sprintf(s,"%ld", val);    
+    lv_label_set_text(slider_label, s);
 
     lv_obj_t * slider = lv_slider_create(obj);
     lv_obj_set_flex_grow(slider, 1);
     lv_slider_set_range(slider, min, max);
     lv_slider_set_value(slider, val, LV_ANIM_OFF);
-
-    if(icon == NULL) {
-        lv_obj_add_flag(slider, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-    }
+    lv_obj_add_event_cb(slider, slider_event_cb, LV_EVENT_ALL, slider_label);
 
     return obj;
 }

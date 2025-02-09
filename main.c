@@ -101,6 +101,7 @@ int main(int argc, char **argv)
 
     menu = create_menu(lv_group_get_default());
     //menu = create_test_menu(lv_group_get_default());
+    //lv_obj_set_style_bg_opa(menu, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_indev_set_group(indev_drv, lv_group_get_default());
 

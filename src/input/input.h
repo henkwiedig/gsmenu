@@ -9,6 +9,7 @@
 typedef enum {
     GSMENU_CONTROL_MODE_NAV = 0,
     GSMENU_CONTROL_MODE_EDIT,
+    GSMENU_CONTROL_MODE_SLIDER,
 } gsmenu_control_mode_t;
 
 void simulate_key_press(uint32_t key_code);

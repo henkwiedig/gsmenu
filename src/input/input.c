@@ -21,7 +21,6 @@
 typedef struct {
     const char *chip_name;  // GPIO chip device (e.g., "/dev/gpiochip0")
     int line_num;           // GPIO pin number
-    lv_key_t lvgl_key;      // LVGL key mapping
     struct gpiod_chip *chip;
     struct gpiod_line *line;
     int last_state;         // Last state of the GPIO (pressed or released)
@@ -30,11 +29,11 @@ typedef struct {
 
 // Define all GPIO buttons
 gpio_button_t gpio_buttons[] = {
-    {"/dev/gpiochip3", 9, LV_KEY_PREV, NULL, NULL, -1, 0},  // Up
-    {"/dev/gpiochip3", 10, LV_KEY_NEXT, NULL, NULL, -1, 0}, // Down
-    {"/dev/gpiochip3", 2, LV_KEY_LEFT, NULL, NULL, -1, 0},  // Left
-    {"/dev/gpiochip3", 1, LV_KEY_ENTER, NULL, NULL, -1, 0}, // Right
-    {"/dev/gpiochip3", 18, LV_KEY_ENTER, NULL, NULL, -1, 0}, // OK
+    {"/dev/gpiochip3", 9,  NULL, NULL, -1, 0},  // Up
+    {"/dev/gpiochip3", 10,  NULL, NULL, -1, 0}, // Down
+    {"/dev/gpiochip3", 2,  NULL, NULL, -1, 0},  // Left
+    {"/dev/gpiochip3", 1,  NULL, NULL, -1, 0}, // Right
+    {"/dev/gpiochip3", 18,  NULL, NULL, -1, 0}, // OK
 };
 #endif
 
@@ -88,28 +87,67 @@ void handle_gpio_input(void) {
 
                 if (current_state == 1) { // Active high: pressed when the value is 1
                     // Adjust for control_mode
-                    if (control_mode == GSMENU_CONTROL_MODE_NAV) {
-                        // Navigation mode (arrows)
-                        next_key = gpio_buttons[i].lvgl_key;
-                    } else {
-                        // Other modes (OK or Right for instance)
-                        switch (gpio_buttons[i].line_num) {
-                            case 9:  // Up
-                                next_key = LV_KEY_UP;
-                                break;
-                            case 10: // Down
-                                next_key = LV_KEY_DOWN;
-                                break;
-                            case 2:  // Left
-                                next_key = LV_KEY_LEFT;
-                                break;
-                            case 1:  // Right
-                                next_key = LV_KEY_RIGHT;
-                                break;
-                            case 18: // OK
-                                next_key = LV_KEY_ENTER;
-                                break;
-                        }
+                    switch (control_mode)
+                    {
+                        case GSMENU_CONTROL_MODE_NAV:
+                            switch (gpio_buttons[i].line_num) {
+                                case 9:  // Up
+                                    next_key = LV_KEY_PREV;
+                                    break;
+                                case 10: // Down
+                                    next_key = LV_KEY_NEXT;
+                                    break;
+                                case 2:  // Left
+                                    next_key = LV_KEY_LEFT;
+                                    break;
+                                case 1:  // Right
+                                    next_key = LV_KEY_ENTER;
+                                    break;
+                                case 18: // OK
+                                    next_key = LV_KEY_ENTER;
+                                    break;
+                            }
+                            break;
+                        case GSMENU_CONTROL_MODE_EDIT:
+                            switch (gpio_buttons[i].line_num) {
+                                case 9:  // Up
+                                    next_key = LV_KEY_UP;
+                                    break;
+                                case 10: // Down
+                                    next_key = LV_KEY_DOWN;
+                                    break;
+                                case 2:  // Left
+                                    next_key = LV_KEY_LEFT;
+                                    break;
+                                case 1:  // Right
+                                    next_key = LV_KEY_RIGHT;
+                                    break;
+                                case 18: // OK
+                                    next_key = LV_KEY_ENTER;
+                                    break;
+                            }
+                            break;
+                        case GSMENU_CONTROL_MODE_SLIDER:
+                            switch (gpio_buttons[i].line_num) {
+                                case 9:  // Up
+                                    next_key = LV_KEY_PREV;
+                                    break;
+                                case 10: // Down
+                                    next_key = LV_KEY_NEXT;
+                                    break;
+                                case 2:  // Left
+                                    next_key = LV_KEY_LEFT;
+                                    break;
+                                case 1:  // Right
+                                    next_key = LV_KEY_RIGHT;
+                                    break;
+                                case 18: // OK
+                                    next_key = LV_KEY_ENTER;
+                                    break;
+                            }
+                            break; 
+                        default:
+                            break;
                     }
                     next_key_pressed = true;
                     printf("GPIO Pressed: %d (Chip: %s)\n", gpio_buttons[i].line_num, gpio_buttons[i].chip_name);
@@ -162,13 +200,37 @@ void handle_keyboard_input(void) {
         switch(c) {
             case 'w':
             case 'W':
-                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_PREV : LV_KEY_UP;
+                switch (control_mode)
+                {
+                case GSMENU_CONTROL_MODE_NAV:                    
+                case GSMENU_CONTROL_MODE_SLIDER:
+                    next_key = LV_KEY_PREV;
+                    break;
+                case GSMENU_CONTROL_MODE_EDIT:
+                    next_key = LV_KEY_UP;
+                    break;
+                
+                default:
+                    break;
+                }                
                 next_key_pressed = true;
                 printf("Up\n");
                 break;
             case 's':
             case 'S':
-                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_NEXT : LV_KEY_DOWN;
+                switch (control_mode)
+                {
+                case GSMENU_CONTROL_MODE_SLIDER:
+                case GSMENU_CONTROL_MODE_NAV:
+                    next_key = LV_KEY_NEXT;
+                    break;
+                case GSMENU_CONTROL_MODE_EDIT:
+                    next_key = LV_KEY_DOWN;
+                    break;
+                
+                default:
+                    break;
+                } 
                 next_key_pressed = true;
                 printf("Down\n");
                 break;
@@ -180,7 +242,19 @@ void handle_keyboard_input(void) {
                 break;
             case 'd':
             case 'D':
-                next_key = control_mode == GSMENU_CONTROL_MODE_NAV ? LV_KEY_ENTER : LV_KEY_RIGHT;
+                switch (control_mode)
+                {
+                case GSMENU_CONTROL_MODE_NAV:
+                    next_key = LV_KEY_ENTER;
+                    break;
+                case GSMENU_CONTROL_MODE_SLIDER:
+                case GSMENU_CONTROL_MODE_EDIT:
+                    next_key = LV_KEY_RIGHT;
+                    break;
+                
+                default:
+                    break;
+                }                 
                 next_key_pressed = true;
                 printf("Right\n");
                 break;
