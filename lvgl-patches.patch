@@ -1,0 +1,156 @@
+diff --git a/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c b/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c
+index fc063b277..2a51e8035 100644
+--- a/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c
++++ b/src/draw/sw/blend/lv_draw_sw_blend_to_argb8888.c
+@@ -6,6 +6,7 @@
+ /*********************
+  *      INCLUDES
+  *********************/
++#include <string.h>
+ #include "lv_draw_sw_blend_to_argb8888.h"
+ #if LV_USE_DRAW_SW
+ 
+@@ -934,6 +935,9 @@ static void LV_ATTRIBUTE_FAST_MEM argb8888_image_blend(lv_draw_sw_blend_image_ds
+             }
+         }
+     }
++    else if(dsc->blend_mode == LV_BLEND_MODE_NONE) {
++        memcpy(dest_buf_c32,src_buf_c32, h * dest_stride);
++    }
+     else {
+         for(y = 0; y < h; y++) {
+             for(x = 0; x < w; x++) {
+diff --git a/src/drivers/display/drm/lv_linux_drm.c b/src/drivers/display/drm/lv_linux_drm.c
+index 2bb6cb518..3e8a22d70 100644
+--- a/src/drivers/display/drm/lv_linux_drm.c
++++ b/src/drivers/display/drm/lv_linux_drm.c
+@@ -37,7 +37,7 @@
+  *      DEFINES
+  *********************/
+ #if LV_COLOR_DEPTH == 32
+-    #define DRM_FOURCC DRM_FORMAT_XRGB8888
++    #define DRM_FOURCC DRM_FORMAT_ARGB8888
+ #elif LV_COLOR_DEPTH == 16
+     #define DRM_FOURCC DRM_FORMAT_RGB565
+ #else
+@@ -62,6 +62,7 @@ typedef struct {
+     int fd;
+     uint32_t conn_id, enc_id, crtc_id, plane_id, crtc_idx;
+     uint32_t width, height;
++    uint32_t req_width, req_height, req_frequency;
+     uint32_t mmWidth, mmHeight;
+     uint32_t fourcc;
+     drmModeModeInfo mode;
+@@ -125,6 +126,7 @@ static uint32_t tick_get_cb(void);
+     static struct gbm_device * gbm_device;
+ 
+ #endif
++static uint32_t req_hres, req_vres, req_freq = 0;
+ 
+ /**********************
+  *      MACROS
+@@ -145,7 +147,11 @@ lv_display_t * lv_linux_drm_create(void)
+     LV_ASSERT_MALLOC(drm_dev);
+     if(drm_dev == NULL) return NULL;
+ 
+-    lv_display_t * disp = lv_display_create(800, 480);
++    drm_dev->req_width = req_hres ? req_hres : 800;
++    drm_dev->req_height = req_vres ? req_vres : 480;
++    drm_dev->req_frequency = req_freq ? req_freq : 0;
++
++    lv_display_t * disp = lv_display_create(drm_dev->req_width, drm_dev->req_height);
+     if(disp == NULL) {
+         lv_free(drm_dev);
+         return NULL;
+@@ -159,6 +165,16 @@ lv_display_t * lv_linux_drm_create(void)
+     return disp;
+ }
+ 
++lv_display_t * lv_linux_drm_create_res(uint32_t h,uint32_t v, uint32_t f)
++{
++
++    req_hres = h;
++    req_vres = v;
++    req_freq = f;
++
++    return lv_linux_drm_create();
++}
++
+ /* Called by LVGL when there is something that needs redrawing
+  * it sets the active buffer. if GBM buffers are used, it issues a DMA_BUF_SYNC
+  * ioctl call to lock the buffer for CPU access, the buffer is unlocked just
+@@ -440,7 +456,7 @@ static int drm_dmabuf_set_plane(drm_dev_t * drm_dev, drm_buffer_t * buf)
+ {
+     int ret;
+     static int first = 1;
+-    uint32_t flags = DRM_MODE_PAGE_FLIP_EVENT | DRM_MODE_ATOMIC_NONBLOCK;
++    uint32_t flags = DRM_MODE_PAGE_FLIP_EVENT;
+ 
+ #if LV_LINUX_DRM_GBM_BUFFERS
+ 
+@@ -603,7 +619,27 @@ static int drm_find_connector(drm_dev_t * drm_dev, int64_t connector_id)
+     drm_dev->mmWidth = conn->mmWidth;
+     drm_dev->mmHeight = conn->mmHeight;
+ 
+-    lv_memcpy(&drm_dev->mode, &conn->modes[0], sizeof(drmModeModeInfo));
++	int mode_num = 0;
++	if (drm_dev->req_width > 0 && drm_dev->req_height > 0 && drm_dev->req_frequency > 0) {
++		mode_num = -1;
++		LV_LOG_INFO( "Available modes: %i",conn->count_modes);
++		for (int i = 0; i < conn->count_modes; i++ ) {
++			LV_LOG_INFO( "%d : %dx%d@%d",i, conn->modes[i].hdisplay, conn->modes[i].vdisplay , conn->modes[i].vrefresh );
++			if (conn->modes[i].hdisplay == drm_dev->req_width &&
++			conn->modes[i].vdisplay == drm_dev->req_height &&
++			conn->modes[i].vrefresh == drm_dev->req_frequency
++			) {
++				mode_num = i;
++			}
++		}
++		if (mode_num < 0) {
++			LV_LOG_ERROR("couldn't find a matching mode for %dx%d@%d", drm_dev->req_width , drm_dev->req_height , drm_dev->req_frequency);
++			goto free_res;
++		} 
++		LV_LOG_INFO( "Using screen mode %dx%d@%d",conn->modes[mode_num].hdisplay, conn->modes[mode_num].vdisplay , conn->modes[mode_num].vrefresh );
++	}    
++
++    lv_memcpy(&drm_dev->mode, &conn->modes[mode_num], sizeof(drmModeModeInfo));
+ 
+     if(drmModeCreatePropertyBlob(drm_dev->fd, &drm_dev->mode, sizeof(drm_dev->mode),
+                                  &drm_dev->blob_id)) {
+@@ -611,8 +647,8 @@ static int drm_find_connector(drm_dev_t * drm_dev, int64_t connector_id)
+         goto free_res;
+     }
+ 
+-    drm_dev->width = conn->modes[0].hdisplay;
+-    drm_dev->height = conn->modes[0].vdisplay;
++    drm_dev->width = conn->modes[mode_num].hdisplay;
++    drm_dev->height = conn->modes[mode_num].vdisplay;
+ 
+     for(i = 0 ; i < res->count_encoders; i++) {
+         enc = drmModeGetEncoder(drm_dev->fd, res->encoders[i]);
+diff --git a/src/drivers/display/drm/lv_linux_drm.h b/src/drivers/display/drm/lv_linux_drm.h
+index ee32466ca..780120dce 100644
+--- a/src/drivers/display/drm/lv_linux_drm.h
++++ b/src/drivers/display/drm/lv_linux_drm.h
+@@ -29,7 +29,8 @@ extern "C" {
+ /**********************
+  * GLOBAL PROTOTYPES
+  **********************/
+-lv_display_t * lv_linux_drm_create(void);
++lv_display_t * lv_linux_drm_create();
++lv_display_t * lv_linux_drm_create_res(uint32_t h,uint32_t v, uint32_t f);
+ 
+ void lv_linux_drm_set_file(lv_display_t * disp, const char * file, int64_t connector_id);
+ 
+diff --git a/src/misc/lv_style.h b/src/misc/lv_style.h
+index 89409a041..88ee8a973 100644
+--- a/src/misc/lv_style.h
++++ b/src/misc/lv_style.h
+@@ -80,6 +80,7 @@ typedef enum {
+     LV_BLEND_MODE_ADDITIVE,   /**< Add the respective color channels*/
+     LV_BLEND_MODE_SUBTRACTIVE,/**< Subtract the foreground from the background*/
+     LV_BLEND_MODE_MULTIPLY,   /**< Multiply the foreground and background*/
++    LV_BLEND_MODE_NONE,       /**< Copy the src to dst buffer*/
+ } lv_blend_mode_t;
+ 
+ /**

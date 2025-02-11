@@ -1,6 +1,8 @@
 #pragma once
 #include <cairo/cairo.h>
 #include <stdint.h>
+#include "../../lvgl/lvgl.h"
+
 
 typedef struct {
     uint16_t width;
@@ -8,4 +10,4 @@ typedef struct {
     unsigned char data[]; // Flexible array member for image data
 } SharedMemoryRegion;
 
-void init_shm(const char *shm_name, int width, int height);
+lv_obj_t * create_msposd_screen(lv_group_t * group);

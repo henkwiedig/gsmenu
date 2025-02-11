@@ -6,6 +6,7 @@
 #include <xf86drmMode.h>
 #include "lvgl/lvgl.h"
 #include "lvgl/src/core/lv_global.h"
+#include "src/ui/msposd.h"
 #include "src/ui/ui.h"
 #include "src/ui/test.h"
 #include "src/input/input.h"
@@ -20,6 +21,8 @@ lv_obj_t * fly_screen;
 static void lv_sdl_disp_init(void)
 {
     lv_sdl_window_create(1920,1080);
+    // lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
+    // lv_obj_set_style_bg_opa(lv_layer_bottom(), LV_OPA_TRANSP, LV_PART_MAIN);    
 }
 #else
 #define BUFFER_CNT 2
@@ -62,8 +65,8 @@ static void lv_linux_disp_init(void)
     const char *device = "/dev/dri/card0";
     lv_display_t * disp = lv_linux_drm_create_res(1920, 1080, 60);
 
-    // lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
-    // lv_obj_set_style_bg_opa(lv_layer_bottom(), LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(lv_layer_bottom(), LV_OPA_TRANSP, LV_PART_MAIN);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_ARGB8888);  // seems to be ignored in drm driver, currently patched manually
     //lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x000000), LV_PART_MAIN);
 
@@ -82,11 +85,19 @@ static void lv_linux_disp_init(void)
 
 extern gsmenu_control_mode_t control_mode;
 
+void my_log_cb(lv_log_level_t level, const char * buf)
+{
+  printf("%s\n", buf);
+}
+
+
 int main(int argc, char **argv)
 {
 
     /* Initialize LVGL. */
     lv_init();
+
+    lv_log_register_print_cb(my_log_cb);    
 
 #ifdef USE_SIMULATOR
     /* Initialize sdl driver */
