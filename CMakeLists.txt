@@ -18,6 +18,9 @@ endif()
 pkg_check_modules(LIBDRM REQUIRED libdrm)
 include_directories(${LIBDRM_INCLUDE_DIRS})
 
+pkg_check_modules(LIBCAIRO REQUIRED cairo)
+include_directories(${LIBCAIRO_INCLUDE_DIRS})
+
 set(CMAKE_C_STANDARD 99) # LVGL officially supports C99 and above
 set(CMAKE_CXX_STANDARD 17) #C17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -35,4 +38,4 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.c ${PROJECT_SOURCE_DIR}/sr
 
 add_executable(gsmenu main.c ${SOURCES})
 
-target_link_libraries(gsmenu lvgl ${LIBDRM_LIBRARIES} ${LIBSDL_LIBRARIES} ${LIBGPIOD_LIBRARIES})
+target_link_libraries(gsmenu lvgl rt ${LIBDRM_LIBRARIES} ${LIBSDL_LIBRARIES} ${LIBGPIOD_LIBRARIES} ${LIBCAIRO_LIBRARIES})

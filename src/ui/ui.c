@@ -10,11 +10,22 @@
 
 static void back_event_handler(lv_event_t * e);
 extern lv_obj_t * menu;
+extern lv_obj_t * menu_screen;
+extern lv_obj_t * fly_screen;
 lv_obj_t * root_page;
+
+static void exit_handler(lv_event_t * e) {
+    lv_event_code_t code = lv_event_get_code(e);
+
+    if (code == LV_EVENT_CLICKED) {
+        lv_screen_load_anim(fly_screen,LV_SCR_LOAD_ANIM_FADE_IN,200,0,false);
+    }
+}
 
 lv_obj_t * create_menu(lv_group_t * group)
 {
-    menu = lv_menu_create(lv_screen_active());
+    menu_screen = lv_obj_create(NULL);
+    menu = lv_menu_create(menu_screen);
 
     lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
     lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, menu);
@@ -73,12 +84,15 @@ lv_obj_t * create_menu(lv_group_t * group)
     lv_menu_set_load_page_event(menu, cont, sub_gs_system_page);
     cont = create_text(section, LV_SYMBOL_WIFI, "WLAN", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
     lv_menu_set_load_page_event(menu, cont, sub_wlan_page);
+    cont = create_text(section, LV_SYMBOL_CLOSE, "Exit", LV_MENU_ITEM_BUILDER_VARIANT_1,group);
+    lv_obj_add_event_cb(cont, exit_handler, LV_EVENT_CLICKED, NULL);
+    
 
     lv_menu_set_sidebar_page(menu, NULL);
     lv_menu_clear_history(menu);
     lv_menu_set_page(menu, root_page);
 
-    return menu;
+    return menu_screen;
 }
 
 static void back_event_handler(lv_event_t * e)

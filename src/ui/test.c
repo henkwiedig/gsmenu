@@ -1,62 +1,40 @@
-#include "../../lvgl/lvgl.h"
-extern lv_obj_t * menu;
+// #include <cairo/cairo.h>
+// #include "../../lvgl/lvgl.h"
+// #include "msposd.h"
 
+// extern unsigned char *shm_data;
+// extern cairo_t * cr;
+// extern lv_obj_t * fly_screen;
 
-lv_obj_t * create_test_menu(lv_group_t * group)
-{
-    menu = lv_menu_create(lv_screen_active());
-    lv_obj_set_size(menu, lv_display_get_horizontal_resolution(NULL), lv_display_get_vertical_resolution(NULL));
-    lv_obj_center(menu);
-    lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 10), 0);
+// /**
+//  * Function to refresh LVGL canvas (forces redraw)
+//  */
+// static void refresh_lvgl_canvas(lv_obj_t * canvas) {
+//     //if ( fly_screen == lv_screen_active()) {
+//         if (shm_data) {
+//             lv_canvas_set_buffer(canvas, shm_data, lv_display_get_horizontal_resolution(NULL), lv_display_get_vertical_resolution(NULL), LV_COLOR_FORMAT_ARGB8888);
+//             lv_obj_invalidate(canvas);  // Request LVGL to redraw
+//         }
+//         printf("Refresh done ...\n");
+//     // }
+// }
 
-    lv_obj_t * cont;
-    lv_obj_t * label;
-    lv_obj_t * section;
+// /**
+//  * Timer callback to refresh the canvas periodically
+//  */
+// static void canvas_refresh_cb(lv_timer_t *timer) {
+//     refresh_lvgl_canvas(lv_timer_get_user_data(timer));
+// }
 
-    /*Create a sub page*/
-    lv_obj_t * sub_page = lv_menu_page_create(menu, NULL);
+// lv_obj_t * create_test_menu(lv_group_t * group)
+// {
 
-    cont = lv_menu_cont_create(sub_page);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Hello, I am hiding here");
+//     init_shm("msposd", lv_display_get_horizontal_resolution(NULL), lv_display_get_vertical_resolution(NULL));
+//     fly_screen = lv_obj_create(NULL);
+//     lv_obj_t * canvas = lv_canvas_create(lv_screen_active());
+//     lv_obj_set_pos(canvas, 0, 0);
+//     lv_obj_set_size(canvas, lv_display_get_horizontal_resolution(NULL), lv_display_get_vertical_resolution(NULL));
+//     lv_timer_create(canvas_refresh_cb, 100, canvas);  // Refresh every 33ms (~30 FPS)
 
-    /*Create a main page*/
-    lv_obj_t * main_page = lv_menu_page_create(menu, "Page 1");
-    
-    section = lv_menu_section_create(main_page);
-
-    cont = lv_menu_cont_create(section);
-    lv_group_add_obj(group,cont);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Item 1");
-
-    cont = lv_menu_cont_create(section);
-    lv_group_add_obj(group,cont);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Item 2");
-
-    cont = lv_menu_cont_create(section);
-    lv_group_add_obj(group,cont);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Item 3 (Click me!)");
-    lv_menu_set_load_page_event(menu, cont, sub_page);
-
-    label = lv_label_create(main_page);
-    lv_label_set_text(label, "New Section");
-    section = lv_menu_section_create(main_page);
-
-    cont = lv_menu_cont_create(section);
-    lv_group_add_obj(group,cont);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Item 1");
-
-    cont = lv_menu_cont_create(section);
-    lv_group_add_obj(group,cont);
-    label = lv_label_create(cont);
-    lv_label_set_text(label, "Item 3 (Click me!)");
-    lv_menu_set_load_page_event(menu, cont, sub_page);    
-
-    lv_menu_set_page(menu, main_page);
-
-    return menu;
-}
+//     return canvas;
+// }

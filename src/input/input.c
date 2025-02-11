@@ -37,6 +37,9 @@ gpio_button_t gpio_buttons[] = {
 };
 #endif
 
+extern lv_obj_t * menu_screen;
+extern lv_obj_t * fly_screen;
+
 // Global or static variable to store the next key state
 static lv_key_t next_key = LV_KEY_END;  // Default to no key
 static bool next_key_pressed = false;    // Indicates if the next key should be pressed or released
@@ -262,6 +265,11 @@ void handle_keyboard_input(void) {
                 next_key = LV_KEY_ENTER;
                 next_key_pressed = true;
                 printf("Enter\n");
+                break;
+            case 'm':
+            case 'M':
+                printf("OpenMenu...\n");
+                lv_screen_load_anim(menu_screen,LV_SCR_LOAD_ANIM_FADE_IN,200,0,false);
                 break;
             case 'q':
             case 'Q':

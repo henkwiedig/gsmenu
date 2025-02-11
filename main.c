@@ -13,11 +13,13 @@
 lv_indev_t * indev_drv;
 lv_group_t * group;
 lv_obj_t * menu;
+lv_obj_t * menu_screen;
+lv_obj_t * fly_screen;
 
 #ifdef USE_SIMULATOR
 static void lv_sdl_disp_init(void)
 {
-    lv_sdl_window_create(800,480);
+    lv_sdl_window_create(1920,1080);
 }
 #else
 #define BUFFER_CNT 2
@@ -58,10 +60,10 @@ typedef struct {
 static void lv_linux_disp_init(void)
 {
     const char *device = "/dev/dri/card0";
-    lv_display_t * disp = lv_linux_drm_create();
+    lv_display_t * disp = lv_linux_drm_create_res(1920, 1080, 60);
 
-    lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(lv_layer_bottom(), LV_OPA_TRANSP, LV_PART_MAIN);
+    // lv_obj_set_style_bg_opa(lv_screen_active(), LV_OPA_TRANSP, LV_PART_MAIN);
+    // lv_obj_set_style_bg_opa(lv_layer_bottom(), LV_OPA_TRANSP, LV_PART_MAIN);
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_ARGB8888);  // seems to be ignored in drm driver, currently patched manually
     //lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x000000), LV_PART_MAIN);
 
@@ -73,8 +75,8 @@ static void lv_linux_disp_init(void)
         printf("Failed to set zpos property\n");
     }
 
-    lv_display_set_resolution(disp,800,480);
-    lv_display_set_offset(disp,200,200);
+    lv_display_set_resolution(disp,1920,1080);
+    //lv_display_set_offset(disp,200,200);
 }
 #endif
 
@@ -99,11 +101,13 @@ int main(int argc, char **argv)
     // Create an input group
     lv_group_set_default(lv_group_create());    
 
-    menu = create_menu(lv_group_get_default());
-    //menu = create_test_menu(lv_group_get_default());
+    // menu_screen = create_menu(lv_group_get_default());
+    fly_screen = create_msposd_screen(lv_group_get_default());
     //lv_obj_set_style_bg_opa(menu, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_indev_set_group(indev_drv, lv_group_get_default());
+
+    // lv_screen_load_anim(fly_screen,LV_SCR_LOAD_ANIM_FADE_IN,200,0,false);
 
     while (1) {
 
